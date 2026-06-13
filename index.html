@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nem Uma a Menos — Resultados</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Hind+Siliguri:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --azul: #1E3A8A;
+    --magenta: #E91E63;
+    --violeta: #9C27B0;
+    --coral: #FF6B6B;
+    --laranja: #FF8C42;
+    --amarelo: #FFD700;
+    --off-white: #FDF8F5;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--azul);
+    font-family: 'Hind Siliguri', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+  }
+  .card {
+    background: var(--off-white);
+    border-radius: 4px;
+    width: 100%;
+    max-width: 520px;
+    overflow: hidden;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.35);
+  }
+  .topbar {
+    background: var(--azul);
+    padding: 28px 36px 24px;
+    position: relative; overflow: hidden;
+  }
+  .topbar::after {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    background: var(--violeta);
+    opacity: 0.2;
+  }
+  .topbar-label {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 3px; text-transform: uppercase;
+    color: var(--coral); margin-bottom: 6px;
+    position: relative; z-index: 1;
+  }
+  .topbar h1 {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900; font-size: 26px;
+    color: white; line-height: 1.1;
+    position: relative; z-index: 1;
+  }
+  .topbar h1 span { color: var(--coral); }
+  .strip { display: flex; height: 5px; }
+  .strip div { flex: 1; }
+  .screen { display: none; padding: 32px 36px 40px; animation: fadeIn 0.3s ease both; }
+  .screen.active { display: block; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* BUSCA */
+  .screen-title {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900; font-size: 22px;
+    color: var(--azul); margin-bottom: 8px;
+  }
+  .screen-sub { font-size: 14px; color: #777; line-height: 1.6; margin-bottom: 24px; }
+  label {
+    display: block;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700; font-size: 11px;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--azul); margin-bottom: 8px;
+  }
+  input[type="text"] {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #e0dbd7;
+    border-radius: 2px;
+    font-family: 'Hind Siliguri', sans-serif;
+    font-size: 16px; color: #1a1a1a;
+    background: white; outline: none;
+    transition: border-color 0.2s;
+    margin-bottom: 16px;
+  }
+  input[type="text"]:focus { border-color: var(--magenta); }
+  .btn {
+    width: 100%;
+    padding: 16px;
+    background: var(--magenta);
+    color: white;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700; font-size: 13px;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    border: none; border-radius: 2px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .btn:hover { background: var(--azul); transform: translateY(-1px); }
+  .btn:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+  .btn-outline {
+    background: transparent;
+    border: 2px solid var(--azul);
+    color: var(--azul);
+    margin-top: 10px;
+  }
+  .btn-outline:hover { background: var(--azul); color: white; }
+  .waiting-msg {
+    background: #fff8e1;
+    border: 2px solid var(--amarelo);
+    border-radius: 4px;
+    padding: 14px 16px;
+    font-size: 13px; color: #7a6000;
+    margin-top: 12px;
+    display: none;
+  }
+  .error-msg {
+    background: #fff0f0;
+    border: 2px solid var(--coral);
+    border-radius: 4px;
+    padding: 14px 16px;
+    font-size: 13px; color: #c0392b;
+    margin-top: 12px;
+    display: none;
+  }
+
+  /* RESULTADO */
+  .match-hero { text-align: center; margin-bottom: 28px; }
+  .match-emoji {
+    font-size: 64px;
+    display: block; margin-bottom: 12px;
+    animation: pop 0.5s cubic-bezier(0.175,0.885,0.32,1.275) both;
+  }
+  @keyframes pop {
+    from { transform: scale(0); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+  }
+  .match-title {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900; font-size: 28px;
+    color: var(--magenta); margin-bottom: 6px;
+  }
+  .match-names {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900; font-size: 20px;
+    color: var(--azul); margin-bottom: 4px;
+  }
+  .match-score { font-size: 14px; color: #888; }
+  .match-score strong { color: var(--violeta); }
+  .block {
+    background: white;
+    border-radius: 4px;
+    padding: 18px 20px;
+    margin-bottom: 14px;
+    border-left: 4px solid var(--violeta);
+  }
+  .block.magenta { border-color: var(--magenta); }
+  .block-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: var(--violeta); margin-bottom: 10px;
+  }
+  .block.magenta .block-title { color: var(--magenta); }
+  .chips { display: flex; flex-wrap: wrap; gap: 7px; }
+  .chip {
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 12px; color: white;
+  }
+  .chip.v { background: var(--violeta); }
+  .chip.m { background: var(--magenta); }
+  .no-common { font-size: 13px; color: #aaa; font-style: italic; }
+  .block-text { font-size: 14px; color: #555; line-height: 1.7; }
+
+  /* ADMIN */
+  .admin-toggle {
+    position: fixed;
+    bottom: 20px; right: 20px;
+    background: rgba(30,58,138,0.92);
+    color: white; border: none; border-radius: 2px;
+    padding: 10px 16px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1px; text-transform: uppercase;
+    cursor: pointer; z-index: 200;
+  }
+  .admin-panel {
+    display: none;
+    position: fixed;
+    bottom: 64px; right: 20px;
+    background: white;
+    border: 2px solid var(--azul);
+    border-radius: 4px;
+    padding: 20px; width: 300px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+    z-index: 200;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+  .admin-panel.open { display: block; }
+  .admin-title {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700; font-size: 13px;
+    color: var(--azul); margin-bottom: 4px;
+  }
+  .admin-sub { font-size: 12px; color: #aaa; margin-bottom: 14px; }
+  .admin-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 0; border-bottom: 1px solid #f0ecea;
+    font-size: 13px;
+  }
+  .admin-item:last-child { border: none; }
+  .p-name { font-weight: 600; color: #1a1a1a; }
+  .p-badge {
+    font-size: 11px; background: var(--off-white);
+    border: 1px solid #ddd; color: #777;
+    padding: 3px 8px; border-radius: 999px;
+  }
+  .admin-btn {
+    background: var(--magenta); color: white; border: none; border-radius: 2px;
+    padding: 12px 14px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700; font-size: 11px;
+    letter-spacing: 1px; text-transform: uppercase;
+    cursor: pointer; width: 100%; margin-top: 14px;
+  }
+  .admin-btn:disabled { background: #ccc; cursor: not-allowed; }
+  .admin-btn.outline {
+    background: transparent; border: 2px solid #ddd; color: #888; margin-top: 8px;
+  }
+  .admin-status {
+    font-size: 11px; text-align: center;
+    padding: 6px 0 2px;
+    font-family: 'Montserrat', sans-serif;
+    color: #aaa;
+  }
+  .admin-status.ok { color: #4CAF50; }
+  .admin-status.err { color: var(--coral); }
+
+  @media (max-width: 420px) {
+    .screen { padding: 24px 22px 32px; }
+    .topbar { padding: 22px 24px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="card" id="mainCard">
+  <div class="topbar">
+    <div class="topbar-label">Resultados</div>
+    <h1>Nem Uma<br><span>a Menos</span></h1>
+  </div>
+  <div class="strip">
+    <div style="background:var(--magenta)"></div>
+    <div style="background:var(--violeta)"></div>
+    <div style="background:var(--azul)"></div>
+    <div style="background:var(--laranja)"></div>
+    <div style="background:var(--coral)"></div>
+    <div style="background:var(--amarelo)"></div>
+  </div>
+
+  <!-- BUSCA -->
+  <div class="screen active" id="screenBusca">
+    <div class="screen-title">Ver meu match 💜</div>
+    <div class="screen-sub">Digite o nome que você usou no quiz para ver com quem você deu match!</div>
+    <label>Seu nome</label>
+    <input type="text" id="searchInput" placeholder="Digite seu nome..." maxlength="40">
+    <button class="btn" id="btnBuscar" onclick="buscarMatch()" disabled>Buscar match →</button>
+    <div class="waiting-msg" id="waitingMsg">⏳ Os matches ainda não foram gerados. Aguarde a organização liberar!</div>
+    <div class="error-msg" id="errorMsg">Erro ao buscar. Verifique sua conexão e tente novamente.</div>
+  </div>
+
+  <!-- RESULTADO -->
+  <div class="screen" id="screenResult">
+    <div class="match-hero">
+      <span class="match-emoji">🎉</span>
+      <div class="match-title">É um match!</div>
+      <div class="match-names" id="matchNames">—</div>
+      <div class="match-score" id="matchScore">—</div>
+    </div>
+    <div class="block" id="blockHobbies">
+      <div class="block-title">Hobbies em comum</div>
+      <div class="chips" id="commonHobbies"></div>
+    </div>
+    <div class="block magenta" id="blockQuiz">
+      <div class="block-title">Personalidade em comum</div>
+      <div class="chips" id="commonQuiz"></div>
+    </div>
+    <div class="block" style="border-color:var(--laranja)">
+      <div class="block-title" style="color:var(--laranja)">Vocês têm alguns minutos!</div>
+      <div class="block-text">Conheçam uma à outra — logo cada uma vai <strong>apresentar sua parceira</strong> para o grupo. 💬</div>
+    </div>
+    <button class="btn btn-outline" onclick="voltarBusca()">← Buscar outro nome</button>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<button class="admin-toggle" onclick="toggleAdmin()">⚙ Organização</button>
+<div class="admin-panel" id="adminPanel">
+  <div class="admin-title">Painel da Organização</div>
+  <div class="admin-sub">Gere os matches após todas preencherem o quiz.</div>
+  <div class="admin-status" id="adminStatus">🔄 Carregando…</div>
+  <div id="adminList"></div>
+  <button class="admin-btn" id="btnGerar" onclick="gerarMatches()">🔗 Gerar Matches</button>
+  <button class="admin-btn outline" onclick="resetarMatches()">↺ Apagar matches</button>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://oyfhmqrrrfdwygxmpxxz.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95ZmhtcXJycmZkd3lneG1weHh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzMTczOTUsImV4cCI6MjA5Njg5MzM5NX0.FDw4rDPCYLf8UidguHj5vdw_BjN4-OafRhpvoy3hhCw';
+
+const headers = {
+  'Content-Type': 'application/json',
+  'apikey': SUPABASE_KEY,
+  'Authorization': `Bearer ${SUPABASE_KEY}`
+};
+
+// Pré-preenche o nome se veio do quiz
+window.addEventListener('DOMContentLoaded', () => {
+  const nome = localStorage.getItem('nuam_nome');
+  if (nome) {
+    document.getElementById('searchInput').value = nome;
+    document.getElementById('btnBuscar').disabled = false;
+  }
+});
+
+document.getElementById('searchInput').addEventListener('input', function() {
+  document.getElementById('btnBuscar').disabled = this.value.trim().length < 2;
+  document.getElementById('waitingMsg').style.display = 'none';
+  document.getElementById('errorMsg').style.display = 'none';
+});
+document.getElementById('searchInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && this.value.trim().length >= 2) buscarMatch();
+});
+
+async function buscarMatch() {
+  const nome = document.getElementById('searchInput').value.trim();
+  const btn = document.getElementById('btnBuscar');
+  const waitEl = document.getElementById('waitingMsg');
+  const errEl = document.getElementById('errorMsg');
+  btn.disabled = true;
+  btn.textContent = 'Buscando…';
+  waitEl.style.display = 'none';
+  errEl.style.display = 'none';
+
+  try {
+    // Busca onde nome_a ou nome_b corresponde (case insensitive)
+    const nomeEnc = encodeURIComponent(nome);
+    const [resA, resB] = await Promise.all([
+      fetch(`${SUPABASE_URL}/rest/v1/matches?nome_a=ilike.${nomeEnc}&select=*`, { headers }),
+      fetch(`${SUPABASE_URL}/rest/v1/matches?nome_b=ilike.${nomeEnc}&select=*`, { headers })
+    ]);
+    const dataA = await resA.json();
+    const dataB = await resB.json();
+    const match = [...(Array.isArray(dataA) ? dataA : []), ...(Array.isArray(dataB) ? dataB : [])][0];
+
+    if (!match) {
+      waitEl.style.display = 'block';
+      waitEl.textContent = '⏳ Nenhum match encontrado ainda. Verifique o nome ou aguarde a organização gerar os matches!';
+    } else {
+      mostrarMatch(match, nome);
+    }
+  } catch(e) {
+    errEl.style.display = 'block';
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Buscar match →';
+}
+
+function mostrarMatch(m, nomeBuscado) {
+  const outro = m.nome_a.toLowerCase() === nomeBuscado.toLowerCase() ? m.nome_b : m.nome_a;
+  document.getElementById('matchNames').textContent = `${nomeBuscado} & ${outro}`;
+
+  const score = m.score || 0;
+  document.getElementById('matchScore').innerHTML = score > 0
+    ? `<strong>${score} pontos</strong> de compatibilidade`
+    : 'Uma dupla única — descubram o que têm em comum!';
+
+  // Hobbies comuns
+  const hEl = document.getElementById('commonHobbies');
+  hEl.innerHTML = '';
+  const hobbies = m.hobbies_comuns || [];
+  if (hobbies.length > 0) {
+    hobbies.forEach(h => {
+      const d = document.createElement('div');
+      d.className = 'chip v';
+      d.textContent = h;
+      hEl.appendChild(d);
+    });
+    document.getElementById('blockHobbies').style.display = '';
+  } else {
+    document.getElementById('blockHobbies').style.display = 'none';
+  }
+
+  // Quiz comuns
+  const qEl = document.getElementById('commonQuiz');
+  qEl.innerHTML = '';
+  const quiz = m.quiz_comuns || [];
+  if (quiz.length > 0) {
+    quiz.forEach(q => {
+      const d = document.createElement('div');
+      d.className = 'chip m';
+      d.textContent = q;
+      qEl.appendChild(d);
+    });
+    document.getElementById('blockQuiz').style.display = '';
+  } else {
+    document.getElementById('blockQuiz').style.display = 'none';
+  }
+
+  document.getElementById('screenBusca').classList.remove('active');
+  document.getElementById('screenResult').classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function voltarBusca() {
+  document.getElementById('screenResult').classList.remove('active');
+  document.getElementById('screenBusca').classList.add('active');
+}
+
+// ══════════════════════════
+// ALGORITMO DE MATCH
+// ══════════════════════════
+function scoreUsers(a, b) {
+  const commonH = (a.hobbies || []).filter(h => (b.hobbies || []).includes(h));
+  const commonQ = [];
+  let quizScore = 0;
+  if (a.quiz && b.quiz) {
+    for (let i = 0; i < 8; i++) {
+      if (a.quiz[i] && a.quiz[i] === b.quiz[i]) {
+        quizScore++;
+        commonQ.push(a.quiz[i]);
+      }
+    }
+  }
+  const total = commonH.length + quizScore;
+  const temComum = total > 0; // basta 1 coisa em comum
+  return { commonH, commonQ, total, temComum };
+}
+
+async function gerarMatches() {
+  const btn = document.getElementById('btnGerar');
+  btn.disabled = true;
+  btn.textContent = 'Gerando…';
+
+  try {
+    // Busca todas as respostas
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/quiz_respostas?select=*`, { headers });
+    const participantes = await res.json();
+
+    if (!Array.isArray(participantes) || participantes.length < 2) {
+      alert('Precisamos de pelo menos 2 participantes!');
+      btn.disabled = false; btn.textContent = '🔗 Gerar Matches'; return;
+    }
+
+    // Remove duplicatas por nome (mantém última resposta)
+    const unicas = [];
+    const nomes = new Set();
+    [...participantes].reverse().forEach(p => {
+      if (!nomes.has(p.nome.toLowerCase())) {
+        nomes.add(p.nome.toLowerCase());
+        unicas.push(p);
+      }
+    });
+
+    // Algoritmo greedy por score
+    const paired = new Array(unicas.length).fill(false);
+    const matches = [];
+    const scores = [];
+
+    for (let i = 0; i < unicas.length; i++) {
+      for (let j = i + 1; j < unicas.length; j++) {
+        const s = scoreUsers(unicas[i], unicas[j]);
+        scores.push({ i, j, ...s });
+      }
+    }
+    scores.sort((a, b) => b.total - a.total);
+
+    for (const s of scores) {
+      if (!paired[s.i] && !paired[s.j] && s.temComum) {
+        matches.push({ nome_a: unicas[s.i].nome, nome_b: unicas[s.j].nome, hobbies_comuns: s.commonH, quiz_comuns: s.commonQ, score: s.total });
+        paired[s.i] = true;
+        paired[s.j] = true;
+      }
+    }
+
+    // Quem não teve match por falta de afinidade, emparelha com quem sobrou
+    const semMatch = unicas.filter((_, i) => !paired[i]);
+    for (let i = 0; i < semMatch.length - 1; i += 2) {
+      matches.push({ nome_a: semMatch[i].nome, nome_b: semMatch[i+1].nome, hobbies_comuns: [], quiz_comuns: [], score: 0 });
+    }
+    if (semMatch.length % 2 !== 0 && matches.length > 0) {
+      matches[matches.length - 1].nome_b += ` + ${semMatch[semMatch.length - 1].nome}`;
+    }
+
+    // Apaga matches antigos
+    await fetch(`${SUPABASE_URL}/rest/v1/matches?id=neq.00000000-0000-0000-0000-000000000000`, {
+      method: 'DELETE', headers: { ...headers, 'Prefer': 'return=minimal' }
+    });
+
+    // Insere novos
+    const insRes = await fetch(`${SUPABASE_URL}/rest/v1/matches`, {
+      method: 'POST',
+      headers: { ...headers, 'Prefer': 'return=minimal' },
+      body: JSON.stringify(matches)
+    });
+
+    if (!insRes.ok) throw new Error('Erro ao salvar matches');
+
+    alert(`✅ ${matches.length} matches gerados para ${unicas.length} participantes!`);
+    toggleAdmin();
+    carregarAdmin();
+  } catch(e) {
+    alert('Erro ao gerar matches: ' + e.message);
+  }
+
+  btn.disabled = false; btn.textContent = '🔗 Gerar Matches';
+}
+
+async function resetarMatches() {
+  if (!confirm('Apagar todos os matches? As respostas do quiz serão mantidas.')) return;
+  await fetch(`${SUPABASE_URL}/rest/v1/matches?id=neq.00000000-0000-0000-0000-000000000000`, {
+    method: 'DELETE', headers: { ...headers, 'Prefer': 'return=minimal' }
+  });
+  alert('Matches apagados!');
+  carregarAdmin();
+}
+
+// ══════════════════════════
+// ADMIN PANEL
+// ══════════════════════════
+function toggleAdmin() {
+  const panel = document.getElementById('adminPanel');
+  panel.classList.toggle('open');
+  if (panel.classList.contains('open')) carregarAdmin();
+}
+
+async function carregarAdmin() {
+  const statusEl = document.getElementById('adminStatus');
+  try {
+    const [resP, resM] = await Promise.all([
+      fetch(`${SUPABASE_URL}/rest/v1/quiz_respostas?select=nome,created_at&order=created_at.desc`, { headers }),
+      fetch(`${SUPABASE_URL}/rest/v1/matches?select=id`, { headers })
+    ]);
+    const participantes = await resP.json();
+    const matchesExist = await resM.json();
+
+    statusEl.textContent = `✅ ${participantes.length} participante${participantes.length !== 1 ? 's' : ''} — ${matchesExist.length} matche${matchesExist.length !== 1 ? 's' : ''} gerado${matchesExist.length !== 1 ? 's' : ''}`;
+    statusEl.className = 'admin-status ok';
+
+    const el = document.getElementById('adminList');
+    el.innerHTML = participantes.length === 0
+      ? '<div style="font-size:13px;color:#aaa;margin:8px 0 4px;">Nenhuma participante ainda.</div>'
+      : participantes.map(p => `<div class="admin-item"><span class="p-name">${p.nome}</span><span class="p-badge">${new Date(p.created_at).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</span></div>`).join('');
+  } catch(e) {
+    statusEl.textContent = '❌ Erro de conexão';
+    statusEl.className = 'admin-status err';
+  }
+}
+
+// Init
+carregarAdmin();
+</script>
+</body>
+</html>
